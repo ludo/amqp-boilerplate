@@ -1,10 +1,11 @@
 # -*- encoding: utf-8 -*-
+
 $:.push File.expand_path("../lib", __FILE__)
-require "amqp/boilerplate/version"
+require 'amqp/boilerplate/version'
 
 Gem::Specification.new do |s|
   s.name        = "amqp-boilerplate"
-  s.version     = Amqp::Boilerplate::VERSION
+  s.version     = AMQP::Boilerplate::VERSION
   s.authors     = ["Patrick Baselier", "Ludo van den Boom"]
   s.email       = ["patrick@kabisa.nl", "ludo@cubicphuse.nl"]
   s.homepage    = ""
