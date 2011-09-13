@@ -3,6 +3,10 @@ require 'spec_helper'
 describe AMQP::Boilerplate do
   describe ".boot" do
     before(:each) do
+      AMQP::Boilerplate.stub(:logger).and_return(mock.as_null_object)
+
+      EventMachine.stub(:next_tick).and_yield
+
       AMQP::Boilerplate.stub(:start_consumers)
       AMQP::Boilerplate.stub(:load_consumers)
     end

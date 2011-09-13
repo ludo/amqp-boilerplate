@@ -1,4 +1,5 @@
 require 'amqp'
+require 'amqp/utilities/event_loop_helper'
 
 require 'amqp/boilerplate/version'
 
@@ -13,8 +14,31 @@ module AMQP
     extend Logging
 
     def self.boot
-      load_consumers
-      start_consumers
+      if defined?(PhusionPassenger)
+        PhusionPassenger.on_event(:starting_worker_process) do |forked|
+          if forked
+            amqp_thread = Thread.new {
+              AMQP.start
+            }
+            amqp_thread.abort_on_exception = true
+          end
+        end
+      else
+        AMQP::Utilities::EventLoopHelper.run do
+          AMQP.start
+        end
+      end
+
+      sleep(0.25)
+
+      AMQP::Boilerplate.logger.info("[#{self.name}.boot] Started AMQP (Server Type: #{AMQP::Utilities::EventLoopHelper.server_type})")
+
+      EventMachine.next_tick do
+        AMQP.channel ||= AMQP::Channel.new(AMQP.connection)
+
+        load_consumers
+        start_consumers
+      end
     end
 
     # TODO Documentation!
