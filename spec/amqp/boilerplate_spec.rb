@@ -32,5 +32,17 @@ describe AMQP::Boilerplate do
       AMQP::Boilerplate.configure { |config| config.logger = MyFunkyLogger }
       AMQP::Boilerplate.logger.should == MyFunkyLogger
     end
+
+    it "should let us choose where consumers can be found" do
+      consumer_path = 'app/consumers'
+      AMQP::Boilerplate.configure { |config| config.consumer_paths << consumer_path }
+      AMQP::Boilerplate.consumer_paths.should include(consumer_path)
+    end
+
+    it "should allow us to set connection options" do
+      connection_options = { :host => "localhost", :port => 5672 }
+      AMQP::Boilerplate.configure { |config| config.connection_options = connection_options }
+      AMQP::Boilerplate.connection_options.should == connection_options
+    end
   end
 end

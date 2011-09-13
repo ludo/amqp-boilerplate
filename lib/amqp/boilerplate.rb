@@ -45,5 +45,13 @@ module AMQP
     def self.configure
       yield self if block_given?
     end
+
+    def self.connection_options
+      @connection_options
+    end
+
+    def self.connection_options=(options)
+      @connection_options = options
+    end
   end
 end
