@@ -3,5 +3,7 @@
 *.swp
 .bundle
 .rvmrc
+.yardoc
+doc/*
 Gemfile.lock
 pkg/*

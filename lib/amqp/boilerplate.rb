@@ -10,6 +10,7 @@ module AMQP
   module Boilerplate
     extend Logging
 
+    # TODO Documentation!
     def self.configure
       yield self if block_given?
     end
