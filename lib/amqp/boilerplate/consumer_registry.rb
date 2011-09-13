@@ -1,14 +1,16 @@
 module AMQP
   module Boilerplate
     module ConsumerRegistry
+      attr_writer :consumer_paths
+
+      def consumer_paths
+        @consumer_paths ||= []
+      end
+
       def load_consumers
         consumer_paths.each do |dir|
           Dir[File.join(dir, "*.rb")].each {|f| require f}
         end
-      end
-
-      def consumer_paths
-        @consumer_paths ||= []
       end
 
       def registry
