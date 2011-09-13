@@ -18,14 +18,14 @@ module AMQP
         PhusionPassenger.on_event(:starting_worker_process) do |forked|
           if forked
             amqp_thread = Thread.new {
-              AMQP.start
+              AMQP::Boilerplate.start
             }
             amqp_thread.abort_on_exception = true
           end
         end
       else
         AMQP::Utilities::EventLoopHelper.run do
-          AMQP.start
+          AMQP::Boilerplate.start
         end
       end
 
@@ -52,6 +52,10 @@ module AMQP
 
     def self.connection_options=(options)
       @connection_options = options
+    end
+
+    def self.start
+      AMQP.start self.connection_options
     end
   end
 end

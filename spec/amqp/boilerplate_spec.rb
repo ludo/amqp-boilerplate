@@ -45,4 +45,17 @@ describe AMQP::Boilerplate do
       AMQP::Boilerplate.connection_options.should == connection_options
     end
   end
+
+  describe ".start" do
+    it "should start AMQP" do
+      AMQP.should_receive(:start)
+      AMQP::Boilerplate.start
+    end
+
+    it "should use the connection options" do
+      AMQP::Boilerplate.connection_options = { :host => "localhost", :port => 5672 }
+      AMQP.should_receive(:start).with(AMQP::Boilerplate.connection_options)
+      AMQP::Boilerplate.start
+    end
+  end
 end
