@@ -1,16 +1,9 @@
 require 'spec_helper'
 
-class DummyConsumer < AMQP::Boilerplate::Consumer
-  amqp_queue "queue.name.here", :durable => true
-  amqp_subscription :ack => true
-end
-
-class FooConsumer < AMQP::Boilerplate::Consumer
-  amqp_queue
-end
-
+# NOTE See spec_helper for Consumer definitions
 describe AMQP::Boilerplate::Consumer do
   before(:each) do
+    AMQP::Boilerplate.stub(:logger).and_return(mock.as_null_object)
     @channel = mock(AMQP::Channel)
     @channel.stub(:on_error).and_return(true)
   end
@@ -21,9 +14,9 @@ describe AMQP::Boilerplate::Consumer do
     end
 
     it "should log the code and message" do
-      AMQP::Boilerplate.logger.should_receive(:error).with("[DummyConsumer#handle_channel_error] Code = #{@channel_close.reply_code}, message = #{@channel_close.reply_text}")
+      AMQP::Boilerplate.logger.should_receive(:error).with("[BarConsumer#handle_channel_error] Code = #{@channel_close.reply_code}, message = #{@channel_close.reply_text}")
 
-      DummyConsumer.new.handle_channel_error(@channel, @channel_close)
+      BarConsumer.new.handle_channel_error(@channel, @channel_close)
     end
   end
 
@@ -58,8 +51,8 @@ describe AMQP::Boilerplate::Consumer do
 
   describe ".start" do
     before(:each) do
-      @consumer = DummyConsumer.new
-      DummyConsumer.stub(:new).and_return(@consumer)
+      @consumer = BarConsumer.new
+      BarConsumer.stub(:new).and_return(@consumer)
 
       AMQP.stub(:channel).and_return(@channel)
 
@@ -70,32 +63,32 @@ describe AMQP::Boilerplate::Consumer do
 
     it "should use a channel" do
       AMQP.should_receive(:channel).and_return(@channel)
-      DummyConsumer.start
+      BarConsumer.start
     end
 
     it "should instantiate a consumer" do
-      DummyConsumer.should_receive(:new).and_return(@consumer)
-      DummyConsumer.start
+      BarConsumer.should_receive(:new).and_return(@consumer)
+      BarConsumer.start
     end
 
     it "should register a channel error handler" do
       @channel.should_receive(:on_error)
-      DummyConsumer.start
+      BarConsumer.start
     end
 
     it "should instantiate a queue with the proper queue name" do
       @channel.should_receive(:queue).with("queue.name.here", anything)
-      DummyConsumer.start
+      BarConsumer.start
     end
 
     it "should instantiate a queue provided with options" do
       @channel.should_receive(:queue).with(anything, :durable => true)
-      DummyConsumer.start
+      BarConsumer.start
     end
 
     it "should subscribe to the queue" do
       @queue.should_receive(:subscribe).with(:ack => true)
-      DummyConsumer.start
+      BarConsumer.start
     end
   end
 end

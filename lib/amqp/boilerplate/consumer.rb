@@ -5,6 +5,7 @@ module AMQP
         def amqp_queue(name=AMQ::Protocol::EMPTY_STRING, options={})
           @queue_name = name
           @queue_options = options
+          AMQP::Boilerplate.register_consumer(self)
         end
 
         def amqp_subscription(options={})
@@ -19,6 +20,8 @@ module AMQP
 
           queue = channel.queue(@queue_name, @queue_options)
           queue.subscribe(@subscription_options, &consumer.method(:handle_message))
+
+          AMQP::Boilerplate.logger.info("[#{self.name}.start] Started consumer '#{self.name}'")
         end
       end
 

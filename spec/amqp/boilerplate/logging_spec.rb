@@ -9,7 +9,7 @@ describe AMQP::Boilerplate::Logging do
   describe "#logger" do
     it "should set the logger to use" do
       MyLogger = Class.new
-      AMQP::Boilerplate.logger = MyLogger # { |config| config.logger = MyLogger }
+      AMQP::Boilerplate.logger = MyLogger
       AMQP::Boilerplate.logger.should == MyLogger
     end
 

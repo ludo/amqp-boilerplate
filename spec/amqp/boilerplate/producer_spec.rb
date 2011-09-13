@@ -1,28 +1,6 @@
 require 'spec_helper'
 
-class DummyProducer
-  extend AMQP::Boilerplate::Producer
-
-  amqp :routing_key => "some.routing.key"
-  amqp_exchange :fanout, "amq.fanout", { :durable => true }
-  amqp_message :message
-
-  def message
-    "hello world!"
-  end
-end
-
-class FooProducer
-  extend AMQP::Boilerplate::Producer
-
-  amqp :routing_key => "another.routing.key"
-  amqp_message :some_method
-
-  def some_method
-    'Foo Bar'
-  end
-end
-
+# NOTE See spec_helper for Producer definitions
 describe AMQP::Boilerplate::Producer do
   before(:each) do
     AMQP::Boilerplate.stub(:logger).and_return(mock.as_null_object)
@@ -31,7 +9,7 @@ describe AMQP::Boilerplate::Producer do
     @exchange.stub(:publish).and_yield
     AMQP::Exchange.stub!(:new).and_return(@exchange)
 
-    @producer = DummyProducer.new
+    @producer = BarProducer.new
   end
 
   describe ".amqp_exchange" do
@@ -63,11 +41,11 @@ describe AMQP::Boilerplate::Producer do
     end
 
     it "should pass options to AMQP::Exchange#publish" do
-      DummyProducer.amqp({ :routing_key => "some.routing.key", :mandatory => true })
+      BarProducer.amqp({ :routing_key => "some.routing.key", :mandatory => true })
       @exchange.should_receive(:publish).with(@producer.message, :routing_key => "some.routing.key", :mandatory => true)
       @producer.publish
 
-      DummyProducer.amqp({ :routing_key => "some.routing.key", :mandatory => true, :immediate => true })
+      BarProducer.amqp({ :routing_key => "some.routing.key", :mandatory => true, :immediate => true })
       @exchange.should_receive(:publish).with(@producer.message, :routing_key => "some.routing.key", :mandatory => true, :immediate => true)
       @producer.publish
     end
@@ -89,7 +67,7 @@ describe AMQP::Boilerplate::Producer do
       end
 
       it "should use defaults for exchange configuration" do
-        DummyProducer.amqp_exchange()
+        BarProducer.amqp_exchange()
 
         AMQP::Exchange.should_receive(:new).with(@channel, :direct, AMQ::Protocol::EMPTY_STRING, {})
         @producer.publish
