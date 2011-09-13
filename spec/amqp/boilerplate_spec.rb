@@ -20,6 +20,41 @@ describe AMQP::Boilerplate do
       AMQP::Boilerplate.should_receive(:start_consumers)
       AMQP::Boilerplate.boot
     end
+
+    it "should connect to AMQP" do
+      AMQP::Boilerplate.should_receive(:start)
+      AMQP::Boilerplate.boot
+    end
+
+    describe "when using passenger" do
+      before(:each) do
+        PhusionPassenger = Class.new
+        PhusionPassenger.stub(:on_event).and_yield(true)
+
+        @thread = mock(Thread, :abort_on_exception= => nil)
+        Thread.stub(:new).and_yield.and_return(@thread)
+      end
+
+      # Don't try this at home!
+      after(:each) do
+        Object.send(:remove_const, "PhusionPassenger")
+      end
+
+      it "should register to starting_worker_process event" do
+        PhusionPassenger.should_receive(:on_event).with(:starting_worker_process)
+        AMQP::Boilerplate.boot
+      end
+
+      it "should start new thread after process forked" do
+        Thread.should_receive(:new)
+        AMQP::Boilerplate.boot
+      end
+
+      it "should abort thread on exception" do
+        @thread.should_receive(:abort_on_exception=).with(true)
+        AMQP::Boilerplate.boot
+      end
+    end
   end
 
   describe ".configure" do
