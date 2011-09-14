@@ -1,0 +1,53 @@
+= amqp-boilerplate
+
+amqp-boilerplate is a set of helper classes and modules to be used with the
+Ruby amqp gem.
+
+== Install
+
+ gem install amqp-boilerplate
+
+== Configuration
+
+See {AMQP::Boilerplate.configure} for configuration options.
+
+== Usage
+
+amqp-boilerplate provides the AMQP::Boilerplate::Producer module for creating
+message producers, and the AMQP::Boilerplate::Consumer class for setting up a
+message consumer.
+
+=== Producers
+
+The following sample code shows a basic producer.
+
+  class MyProducer
+    extend AMQP::Boilerplate::Producer
+
+    amqp :routing_key => "hello.world"
+    amqp_message :message
+
+    def message
+      "Look! I am a string that will be posted to the exchange."
+    end
+  end
+
+For more information please refer to {AMQP::Boilerplate::Producer}
+
+=== Consumers
+
+The following sample code shows a basic consumer.
+
+  class MyConsumer < AMQP::Boilerplate::Consumer
+    amqp_queue "hello.world"
+
+    def handle_message(payload, metadata)
+      puts "Received message: #{payload}"
+    end
+  end
+
+For more information please refer to {AMQP::Boilerplate::Consumer}
+
+== License
+
+amqp-boilerplate is released under the MIT license.

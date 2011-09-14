@@ -1,5 +1,13 @@
 module AMQP
   module Boilerplate
+    # @example Basic consumer
+    #   class MyConsumer < AMQP::Boilerplate::Consumer
+    #     amqp_queue "hello.world"
+    #
+    #     def handle_message(payload, metadata)
+    #       puts "Received message: #{payload}"
+    #     end
+    #   end
     class Consumer
       class << self
         def amqp_queue(name=AMQ::Protocol::EMPTY_STRING, options={})
