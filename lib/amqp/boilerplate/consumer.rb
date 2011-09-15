@@ -10,6 +10,14 @@ module AMQP
     #   end
     class Consumer
       class << self
+        # Macro for selecting exchange to bind to
+        #
+        # @param [String] name Exchange name
+        # @return [void]
+        def amqp_exchange(name)
+          @exchange_name = name
+        end
+
         def amqp_queue(name=AMQ::Protocol::EMPTY_STRING, options={})
           @queue_name = name
           @queue_options = options
@@ -27,6 +35,7 @@ module AMQP
           channel.on_error(&consumer.method(:handle_channel_error))
 
           queue = channel.queue(@queue_name, @queue_options)
+          queue.bind(@exchange_name) if @exchange_name
           queue.subscribe(@subscription_options, &consumer.method(:handle_message))
 
           AMQP::Boilerplate.logger.info("[#{self.name}.start] Started consumer '#{self.name}'")

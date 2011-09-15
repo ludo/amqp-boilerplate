@@ -90,5 +90,32 @@ describe AMQP::Boilerplate::Consumer do
       @queue.should_receive(:subscribe).with(:ack => true)
       BarConsumer.start
     end
+
+    describe "when an exchange name has been provided" do
+      before(:each) do
+        @exchange_name = "amq.fanout"
+        BarConsumer.amqp_exchange(@exchange_name)
+      end
+
+      after(:each) do
+        BarConsumer.amqp_exchange(nil)
+      end
+
+      it "should bind to the exchange" do
+        @queue.should_receive(:bind).with(@exchange_name)
+        BarConsumer.start
+      end
+    end
+
+    describe "when no exchange name provided" do
+      before(:each) do
+        BarConsumer.amqp_exchange(nil)
+      end
+
+      it "should not explicitly bind to an exchange" do
+        @queue.should_not_receive(:bind)
+        BarConsumer.start
+      end
+    end
   end
 end
