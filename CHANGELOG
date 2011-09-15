@@ -1,0 +1,14 @@
+= version 0.0.3
+
+  * [FEATURE] Added amqp_exchange macro to Consumer for selecting the exchange
+  to bind to.
+
+= version 0.0.2
+
+  * [FEATURE] AMQP::boilerplate.boot for booting up within an EventLoop (i.e.
+  when using Passenger)
+
+= version 0.0.1
+
+  * [FEATURE] Added class for setting up an AMQP Consumer
+  * [FEATURE] Added module for creating an AMQP Producer
