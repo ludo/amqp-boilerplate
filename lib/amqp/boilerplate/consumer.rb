@@ -1,8 +1,25 @@
 module AMQP
   module Boilerplate
+    # Inherit from this class to turn a class into a potential consumer that can
+    # handle messages delivered to them by AMQP broker.
+    #
+    # You should call the macro {.amqp_queue} method and implement {#handle_message}.
+    #
+    # To specify subscription options you can call the optional macro {.amqp_subscription} method.
+    #
     # @example Basic consumer
     #   class MyConsumer < AMQP::Boilerplate::Consumer
     #     amqp_queue "hello.world"
+    #
+    #     def handle_message(payload, metadata)
+    #       puts "Received message: #{payload}"
+    #     end
+    #   end
+    #
+    # @example Configuring subscription
+    #   class MyConsumer < AMQP::Boilerplate::Consumer
+    #     amqp_queue "queue.name.here", :durable => true
+    #     amqp_subscription :ack => true
     #
     #     def handle_message(payload, metadata)
     #       puts "Received message: #{payload}"
@@ -18,12 +35,20 @@ module AMQP
           @exchange_name = name
         end
 
+        # Macro that sets up the amqp_queue for a class.
+        #
+        # @param [String] name Queue name. If you want a server-named queue, you can omit the name.
+        # @param [Hash] options Options that will be passed as options to {http://rdoc.info/github/ruby-amqp/amqp/master/AMQP/Channel#queue-instance_method AMQP::Channel#queue}
+        # @return [void]
         def amqp_queue(name=AMQ::Protocol::EMPTY_STRING, options={})
           @queue_name = name
           @queue_options = options
           AMQP::Boilerplate.register_consumer(self)
         end
 
+        # Macro that subscribes to asynchronous message delivery.
+        # 
+        # @param [Hash] options Options that will be passed as options to {http://rdoc.info/github/ruby-amqp/amqp/master/AMQP/Queue#subscribe-instance_method AMQP::Queue#subscribe}
         def amqp_subscription(options={})
           @subscription_options = options
         end

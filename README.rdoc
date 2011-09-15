@@ -1,7 +1,7 @@
 = amqp-boilerplate
 
 amqp-boilerplate is a set of helper classes and modules to be used with the
-Ruby amqp gem.
+{https://github.com/ruby-amqp/amqp Ruby amqp gem}.
 
 == Install
 
