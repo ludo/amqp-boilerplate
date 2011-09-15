@@ -41,7 +41,14 @@ module AMQP
       end
     end
 
-    # TODO Documentation!
+    # Configures AMQP::Boilerplate and yields AMQP::Boilerplate object to the block
+    #
+    # @example
+    #   AMQP::Boilerplate.configure do |config|
+    #     config.logger = ::Rails.logger
+    #     config.consumer_paths += %W( #{Rails.root}/app/consumers )
+    #     config.connection_options = { :host => "localhost", :port => 5672, :vhost => Rails.env }
+    #   end
     def self.configure
       yield self if block_given?
     end
@@ -50,6 +57,9 @@ module AMQP
       @connection_options
     end
 
+    # AMQP connection options (:host, :port, :username, :vhost, :password) that
+    # will be passed as connection_options to {http://rdoc.info/github/ruby-amqp/amqp/master/AMQP#connect-class_method AMQP#start}
+    # when starting an EventMachine event loop.
     def self.connection_options=(options)
       @connection_options = options
     end

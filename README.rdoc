@@ -11,6 +11,24 @@ amqp-boilerplate is a set of helper classes and modules to be used with the
 
 See {AMQP::Boilerplate.configure} for configuration options.
 
+=== Ruby on Rails
+
+Add a initializer +amqp.rb+ to your config/initializer folder with the following code:
+
+  Rails.configuration.threadsafe!
+
+  AMQP::Boilerplate.configure do |config|
+    config.logger = ::Rails.logger
+    config.consumer_paths += %W( #{Rails.root}/app/consumers )
+    config.connection_options = { :host => "localhost", :port => 5672, :vhost => Rails.env }
+  end
+
+  # Require all files that are no longer auto-loaded when Rails is in thread-safe mode
+  Dir[File.expand_path(File.join(Rails.root,'lib','**','*.rb'))].each {|f| require f}
+  Dir[File.expand_path(File.join(Rails.root,'app','producers','**','*.rb'))].each {|f| require f}
+
+  AMQP::Boilerplate.boot
+
 == Usage
 
 amqp-boilerplate provides the AMQP::Boilerplate::Producer module for creating

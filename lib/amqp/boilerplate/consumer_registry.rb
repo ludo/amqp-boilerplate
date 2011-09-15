@@ -3,6 +3,11 @@ module AMQP
     module ConsumerRegistry
       attr_writer :consumer_paths
 
+      # Returns an array of paths which files are loaded when {AMQP::Boilerplate.boot} is called.
+      # You should define the consumer_paths when you configure +AMQP::Boilerplate+ and assign
+      # an array of paths pointing to the folder where your consumer files are located, to it. 
+      #
+      # @see AMQP::Boilerplate.configure
       def consumer_paths
         @consumer_paths ||= []
       end
