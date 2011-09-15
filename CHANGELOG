@@ -1,3 +1,7 @@
+= version 0.0.4
+
+  * [ENHANCEMENT] Documentation
+
 = version 0.0.3
 
   * [FEATURE] Added amqp_exchange macro to Consumer for selecting the exchange
