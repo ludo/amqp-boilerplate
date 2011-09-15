@@ -6,9 +6,15 @@ describe AMQP::Boilerplate do
       AMQP::Boilerplate.stub(:logger).and_return(mock.as_null_object)
 
       EventMachine.stub(:next_tick).and_yield
+      AMQP::Utilities::EventLoopHelper.stub(:run).and_yield
 
-      AMQP::Boilerplate.stub(:start_consumers)
+      AMQP.stub(:connection).and_return(mock(AMQP::Session))
+      AMQP::Channel.stub(:new).and_return(mock(AMQP::Channel))
+
       AMQP::Boilerplate.stub(:load_consumers)
+      AMQP::Boilerplate.stub(:start_consumers)
+      AMQP::Boilerplate.stub(:start)
+      AMQP::Boilerplate.stub(:sleep)
     end
 
     it "should load all consumers" do
@@ -24,6 +30,18 @@ describe AMQP::Boilerplate do
     it "should connect to AMQP" do
       AMQP::Boilerplate.should_receive(:start)
       AMQP::Boilerplate.boot
+    end
+
+    it "should sleep for a while" do
+      AMQP::Boilerplate.should_receive(:sleep).with(0.25)
+      AMQP::Boilerplate.boot
+    end
+
+    describe "wen not using passenger" do
+      it "should use built-in EventLoopHelper" do
+        AMQP::Utilities::EventLoopHelper.should_receive(:run)
+        AMQP::Boilerplate.boot
+      end
     end
 
     describe "when using passenger" do
@@ -82,6 +100,10 @@ describe AMQP::Boilerplate do
   end
 
   describe ".start" do
+    before(:each) do
+      AMQP.stub(:start)
+    end
+
     it "should start AMQP" do
       AMQP.should_receive(:start)
       AMQP::Boilerplate.start
