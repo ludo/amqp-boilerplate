@@ -102,7 +102,7 @@ describe AMQP::Boilerplate::Consumer do
       end
 
       it "should bind to the exchange" do
-        @queue.should_receive(:bind).with(@exchange_name)
+        @queue.should_receive(:bind).with(@exchange_name, {})
         BarConsumer.start
       end
     end
