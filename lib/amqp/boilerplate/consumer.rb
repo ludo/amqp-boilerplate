@@ -30,9 +30,11 @@ module AMQP
         # Macro for selecting exchange to bind to
         #
         # @param [String] name Exchange name
+        # @param [Hash] options Options that will be passed as options to {http://rdoc.info/github/ruby-amqp/amqp/master/AMQP/Queue#bind-instance_method AMQP::Queue#bind}
         # @return [void]
-        def amqp_exchange(name)
+        def amqp_exchange(name, options = {})
           @exchange_name = name
+          @exchange_options = options
         end
 
         # Macro that sets up the amqp_queue for a class.
@@ -44,13 +46,6 @@ module AMQP
           @queue_name = name
           @queue_options = options
           AMQP::Boilerplate.register_consumer(self)
-        end
-
-        # Macro that sets the routing key for this consumer.
-        #
-        # @param [String] the routing key
-        def amqp_routing_key(key)
-          @routing_key = key
         end
 
         # Macro that subscribes to asynchronous message delivery.
@@ -67,7 +62,8 @@ module AMQP
           channel.on_error(&consumer.method(:handle_channel_error))
 
           queue = channel.queue(@queue_name, @queue_options)
-          queue.bind(@exchange_name, @routing_key ? {:routing_key => @routing_key} : {}) if @exchange_name
+          # Binding a queue to a exchange by passing a string (instead of a AMQP::Exchange instance)
+          queue.bind(@exchange_name, @exchange_options) if @exchange_name
           queue.subscribe(@subscription_options, &consumer.method(:handle_message))
 
           AMQP::Boilerplate.logger.info("[#{self.name}.start] Started consumer '#{self.name}'")
