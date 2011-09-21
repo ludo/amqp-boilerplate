@@ -49,7 +49,7 @@ describe AMQP::Boilerplate do
         PhusionPassenger = Class.new
         PhusionPassenger.stub(:on_event).and_yield(true)
 
-        @thread = mock(Thread, :abort_on_exception= => nil)
+        @thread = mock(Thread)
         Thread.stub(:new).and_yield.and_return(@thread)
       end
 
@@ -65,11 +65,6 @@ describe AMQP::Boilerplate do
 
       it "should start new thread after process forked" do
         Thread.should_receive(:new)
-        AMQP::Boilerplate.boot
-      end
-
-      it "should abort thread on exception" do
-        @thread.should_receive(:abort_on_exception=).with(true)
         AMQP::Boilerplate.boot
       end
     end

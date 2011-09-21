@@ -17,10 +17,9 @@ module AMQP
       if defined?(PhusionPassenger)
         PhusionPassenger.on_event(:starting_worker_process) do |forked|
           if forked
-            amqp_thread = Thread.new {
+            Thread.new do
               AMQP::Boilerplate.start
-            }
-            amqp_thread.abort_on_exception = true
+            end
           end
         end
       else

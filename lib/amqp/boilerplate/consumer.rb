@@ -49,7 +49,7 @@ module AMQP
         end
 
         # Macro that subscribes to asynchronous message delivery.
-        # 
+        #
         # @param [Hash] options Options that will be passed as options to {http://rdoc.info/github/ruby-amqp/amqp/master/AMQP/Queue#subscribe-instance_method AMQP::Queue#subscribe}
         def amqp_subscription(options={})
           @subscription_options = options
@@ -64,18 +64,38 @@ module AMQP
           queue = channel.queue(@queue_name, @queue_options)
           # Binding a queue to a exchange by passing a string (instead of a AMQP::Exchange instance)
           queue.bind(@exchange_name, @exchange_options) if @exchange_name
-          queue.subscribe(@subscription_options, &consumer.method(:handle_message))
+          queue.subscribe(@subscription_options, &consumer.method(:handle_message_wrapper))
 
           AMQP::Boilerplate.logger.info("[#{self.name}.start] Started consumer '#{self.name}'")
         end
+      end
+
+      def handle_channel_error(channel, channel_close)
+        AMQP::Boilerplate.logger.error("[#{self.class}#handle_channel_error] Code = #{channel_close.reply_code}, message = #{channel_close.reply_text}")
       end
 
       def handle_message(metadata, payload)
         raise NotImplementedError, "The time has come to implement your own consumer class. Good luck!"
       end
 
-      def handle_channel_error(channel, channel_close)
-        AMQP::Boilerplate.logger.error("[#{self.class}#handle_channel_error] Code = #{channel_close.reply_code}, message = #{channel_close.reply_text}")
+      # Wrapper around message handling routine to prevent the consumer from
+      # being killed when an exception occurs
+      #
+      # Catches anything that quacks like a +StandardError+. +SystemExit+s,
+      # +SyntaxError+s and the like will still cause the consumer to be
+      # aborted. See Ruby's exception inheritance hierarchy for a complete
+      # list of what is and what is not handled by this wrapper.
+      def handle_message_wrapper(metadata, payload)
+        handle_message(metadata, payload)
+      rescue StandardError => e
+        message = <<-MSG
+[#{self.class}] An exception occurred while processing a message
+  Payload: #{payload}
+  Exception: #{e.message}
+  Backtrace: #{e.backtrace.join("\n")}
+        MSG
+
+        AMQP::Boilerplate.logger.error(message)
       end
     end
   end

@@ -1,3 +1,13 @@
+= version 0.0.6
+
+  * [FEATURE] Do not abort consumer thread when a StandardError-like exception
+  is raised, but log this instead
+
+= version 0.0.5
+
+  * [FEATURE] Allow additional options to be passed when binding to an
+  exchange
+
 = version 0.0.4
 
   * [ENHANCEMENT] Documentation

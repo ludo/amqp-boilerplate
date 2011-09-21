@@ -105,7 +105,7 @@ describe AMQP::Boilerplate::Consumer do
         @queue.should_receive(:bind).with(@exchange_name, anything)
         BarConsumer.start
       end
-      
+
       it "should pass an empty hash when no amqp_exchange options are defined" do
         BarConsumer.amqp_exchange(@exchange_name)
         @queue.should_receive(:bind).with(anything, {})
@@ -127,6 +127,49 @@ describe AMQP::Boilerplate::Consumer do
       it "should not explicitly bind to an exchange" do
         @queue.should_not_receive(:bind)
         BarConsumer.start
+      end
+    end
+  end
+
+  describe "#handle_message_wrapper" do
+    before(:each) do
+      @consumer = BarConsumer.new
+
+      @metadata = mock("metadata")
+      @payload = "payload"
+    end
+
+    it "should let handle_message do the heavy lifting" do
+      @consumer.should_receive(:handle_message).with(@metadata, @payload)
+      @consumer.handle_message_wrapper(@metadata, @payload)
+    end
+
+    describe "when a StandardError-like error is raised" do
+      before(:each) do
+        @consumer.stub(:handle_message).and_raise(StandardError)
+      end
+
+      it "should be caught" do
+        expect {
+          @consumer.handle_message_wrapper(@metadata, @payload)
+        }.to_not raise_error
+      end
+
+      it "should log" do
+        AMQP::Boilerplate.logger.should_receive(:error)
+        @consumer.handle_message_wrapper(@metadata, @payload)
+      end
+    end
+
+    describe "when a NotImplementedError is raised" do
+      before(:each) do
+        @consumer.stub(:handle_message).and_raise(NotImplementedError)
+      end
+
+      it "should not be caught" do
+        expect {
+          @consumer.handle_message_wrapper(@metadata, @payload)
+        }.to raise_error(NotImplementedError)
       end
     end
   end
