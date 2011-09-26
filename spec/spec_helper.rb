@@ -28,6 +28,17 @@ class FooProducer
   end
 end
 
+class NilProducer
+  extend AMQP::Boilerplate::Producer
+
+  amqp :routing_key => "yet.another.routing.key"
+  amqp_message :nil_message
+
+  def nil_message
+    nil
+  end
+end
+
 class BarProducer
   extend AMQP::Boilerplate::Producer
 

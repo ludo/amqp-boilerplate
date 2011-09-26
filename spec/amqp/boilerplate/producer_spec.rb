@@ -40,6 +40,13 @@ describe AMQP::Boilerplate::Producer do
       another_producer.publish
     end
 
+    it "should only log nil messages" do
+      @nilproducer = NilProducer.new
+      AMQP::Boilerplate.logger.should_receive(:debug).with("[#{@nilproducer.class}] Not publishing nil message")
+      @nilproducer.publish
+    end
+
+
     it "should pass options to AMQP::Exchange#publish" do
       BarProducer.amqp({ :routing_key => "some.routing.key", :mandatory => true })
       @exchange.should_receive(:publish).with(@producer.message, :routing_key => "some.routing.key", :mandatory => true)

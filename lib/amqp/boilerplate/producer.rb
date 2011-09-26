@@ -94,8 +94,12 @@ module AMQP
         # @return [void]
         def publish
           message = send(self.class.amqp_boilerplate_message.to_sym)
-          exchange.publish(message, self.class.amqp_boilerplate_options) do
-            AMQP::Boilerplate.logger.debug "[#{self.class}] Published message:\n#{message}"
+          if message
+            exchange.publish(message, self.class.amqp_boilerplate_options) do
+              AMQP::Boilerplate.logger.debug "[#{self.class}] Published message:\n#{message}"
+            end
+          else
+            AMQP::Boilerplate.logger.debug "[#{self.class}] Not publishing nil message"
           end
         end
 
