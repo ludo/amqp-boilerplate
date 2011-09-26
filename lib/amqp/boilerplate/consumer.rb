@@ -86,6 +86,7 @@ module AMQP
       # aborted. See Ruby's exception inheritance hierarchy for a complete
       # list of what is and what is not handled by this wrapper.
       def handle_message_wrapper(metadata, payload)
+        AMQP::Boilerplate.logger.debug("[#{self.class}#handle_message_wrapper] Received message: #{payload}")
         handle_message(metadata, payload)
       rescue StandardError => e
         message = <<-MSG

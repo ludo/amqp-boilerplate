@@ -1,3 +1,8 @@
+= version 0.0.7
+
+  * [ENHANCEMENT] Log payload when log level is debug
+  * [ENHANCEMENT] Do not publish +nil+ messages
+
 = version 0.0.6
 
   * [FEATURE] Do not abort consumer thread when a StandardError-like exception
