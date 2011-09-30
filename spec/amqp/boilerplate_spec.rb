@@ -22,11 +22,6 @@ describe AMQP::Boilerplate do
       AMQP::Boilerplate.boot
     end
 
-    it "should start all consumers" do
-      AMQP::Boilerplate.should_receive(:start_consumers)
-      AMQP::Boilerplate.boot
-    end
-
     it "should connect to AMQP" do
       AMQP::Boilerplate.should_receive(:start)
       AMQP::Boilerplate.boot
@@ -37,15 +32,47 @@ describe AMQP::Boilerplate do
       AMQP::Boilerplate.boot
     end
 
+    describe "when server type is unknown" do
+      before(:each) do
+        AMQP::Utilities::EventLoopHelper.stub(:server_type).and_return(nil)
+      end
+
+      it "should not start consumers" do
+        AMQP::Boilerplate.should_not_receive(:start_consumers)
+        AMQP::Boilerplate.boot
+      end
+
+      it "should log server type as 'unknown'" do
+        AMQP::Boilerplate.logger.should_receive(:info).with(/Server Type: unknown/)
+        AMQP::Boilerplate.boot
+      end
+
+      it "should log that consumers are not loaded" do
+        AMQP::Boilerplate.logger.should_receive(:debug).with(/Unknown server type, not starting consumers/)
+        AMQP::Boilerplate.boot
+      end
+    end
+
     describe "wen not using passenger" do
+      before(:each) do
+        AMQP::Utilities::EventLoopHelper.stub(:server_type).and_return(:mongrel)
+      end
+
       it "should use built-in EventLoopHelper" do
         AMQP::Utilities::EventLoopHelper.should_receive(:run)
+        AMQP::Boilerplate.boot
+      end
+
+      it "should start all consumers" do
+        AMQP::Boilerplate.should_receive(:start_consumers)
         AMQP::Boilerplate.boot
       end
     end
 
     describe "when using passenger" do
       before(:each) do
+        AMQP::Utilities::EventLoopHelper.stub(:server_type).and_return(:passenger)
+
         PhusionPassenger = Class.new
         PhusionPassenger.stub(:on_event).and_yield(true)
 
@@ -56,6 +83,11 @@ describe AMQP::Boilerplate do
       # Don't try this at home!
       after(:each) do
         Object.send(:remove_const, "PhusionPassenger")
+      end
+
+      it "should start all consumers" do
+        AMQP::Boilerplate.should_receive(:start_consumers)
+        AMQP::Boilerplate.boot
       end
 
       it "should register to starting_worker_process event" do

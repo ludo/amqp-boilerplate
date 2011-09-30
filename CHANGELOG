@@ -1,3 +1,8 @@
+= version 0.0.8
+
+  * [FEATURE] Do not start consumers when server type is unknown
+  * [ENHANCEMENT] Better logging
+
 = version 0.0.7
 
   * [ENHANCEMENT] Log payload when log level is debug

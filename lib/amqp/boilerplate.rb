@@ -13,9 +13,16 @@ module AMQP
     extend ConsumerRegistry
     extend Logging
 
+    # Opens a channel to AMQP and starts all consumers
+    #
+    # NOTE When an unknown server type is encountered the consumers will NOT be
+    # started. A channel will be opened for the producers though.
+    #
+    # @see AMQP::Utilities::EventLoopHelper
+    # @return [void]
     def self.boot
-      if defined?(PhusionPassenger)
-        PhusionPassenger.on_event(:starting_worker_process) do |forked|
+      if AMQP::Utilities::EventLoopHelper.server_type == :passenger
+        ::PhusionPassenger.on_event(:starting_worker_process) do |forked|
           if forked
             Thread.new do
               AMQP::Boilerplate.start
@@ -30,13 +37,18 @@ module AMQP
 
       sleep(0.25)
 
-      AMQP::Boilerplate.logger.info("[#{self.name}.boot] Started AMQP (Server Type: #{AMQP::Utilities::EventLoopHelper.server_type})")
+      AMQP::Boilerplate.logger.info("[#{self.name}.boot] Started AMQP (Server Type: #{AMQP::Utilities::EventLoopHelper.server_type || 'unknown'})")
 
       EventMachine.next_tick do
         AMQP.channel ||= AMQP::Channel.new(AMQP.connection)
 
         load_consumers
-        start_consumers
+
+        if AMQP::Utilities::EventLoopHelper.server_type
+          start_consumers
+        else
+          AMQP::Boilerplate.logger.debug("[#{self.name}.boot] Unknown server type, not starting consumers")
+        end
       end
     end
 
