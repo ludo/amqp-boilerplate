@@ -5,6 +5,7 @@ require 'amqp/boilerplate/version'
 
 require 'amqp/boilerplate/consumer'
 require 'amqp/boilerplate/consumer_registry'
+require 'amqp/boilerplate/force_consumers'
 require 'amqp/boilerplate/logging'
 require 'amqp/boilerplate/producer'
 
@@ -12,6 +13,7 @@ module AMQP
   module Boilerplate
     extend ConsumerRegistry
     extend Logging
+    extend ForceConsumers
 
     # Opens a channel to AMQP and starts all consumers
     #
@@ -44,7 +46,7 @@ module AMQP
 
         load_consumers
 
-        if AMQP::Utilities::EventLoopHelper.server_type
+        if AMQP::Utilities::EventLoopHelper.server_type || force_consumers
           start_consumers
         else
           AMQP::Boilerplate.logger.debug("[#{self.name}.boot] Unknown server type, not starting consumers")
