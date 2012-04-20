@@ -34,6 +34,7 @@ describe AMQP::Boilerplate do
 
     describe "when server type is unknown" do
       before(:each) do
+        AMQP::Boilerplate.force_consumers = false
         AMQP::Utilities::EventLoopHelper.stub(:server_type).and_return(nil)
       end
 
@@ -41,6 +42,13 @@ describe AMQP::Boilerplate do
         AMQP::Boilerplate.should_not_receive(:start_consumers)
         AMQP::Boilerplate.boot
       end
+
+      it "should start consumers if forced" do
+        AMQP::Boilerplate.force_consumers = true
+        AMQP::Boilerplate.should_receive(:start_consumers)
+        AMQP::Boilerplate.boot
+      end
+
 
       it "should log server type as 'unknown'" do
         AMQP::Boilerplate.logger.should_receive(:info).with(/Server Type: unknown/)
