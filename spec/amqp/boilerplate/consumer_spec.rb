@@ -144,32 +144,34 @@ describe AMQP::Boilerplate::Consumer do
       @consumer.handle_message_wrapper(@metadata, @payload)
     end
 
-    describe "when a StandardError-like error is raised" do
-      before(:each) do
-        @consumer.stub(:handle_message).and_raise(StandardError)
+    context "when on_unhandled_consumer_exception option set" do
+      before do
+        AMQP::Boilerplate.stub(:on_unhandled_consumer_exception).and_return(Proc.new { |e|
+          AMQP::Boilerplate.logger.error("foo: #{e.message}")
+        })
       end
 
-      it "should be caught" do
+      it "should not raise the exception" do
         expect {
           @consumer.handle_message_wrapper(@metadata, @payload)
         }.to_not raise_error
       end
 
-      it "should log" do
+      it "should yield the on_unhandled_consumer_exception" do
         AMQP::Boilerplate.logger.should_receive(:error)
         @consumer.handle_message_wrapper(@metadata, @payload)
       end
     end
 
-    describe "when a NotImplementedError is raised" do
-      before(:each) do
-        @consumer.stub(:handle_message).and_raise(NotImplementedError)
+    context "when on_unhandled_consumer_exception option set" do
+      before do
+        AMQP::Boilerplate.stub(:on_unhandled_consumer_exception).and_return(nil)
       end
 
-      it "should not be caught" do
+      it "should re-raise the exception" do
         expect {
           @consumer.handle_message_wrapper(@metadata, @payload)
-        }.to raise_error(NotImplementedError)
+        }.to raise_error
       end
     end
   end

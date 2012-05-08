@@ -21,6 +21,7 @@ Add a initializer +amqp.rb+ to your config/initializer folder with the following
     config.logger = ::Rails.logger
     config.consumer_paths += %W( #{Rails.root}/app/consumers )
     config.connection_options = { :host => "localhost", :port => 5672, :vhost => Rails.env }
+    config.on_unhandled_exception = Proc.new { |exception| puts "Do something with exceptions: #{exception}" }
   end
 
   # Require all files that are no longer auto-loaded when Rails is in thread-safe mode

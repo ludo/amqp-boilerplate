@@ -1,3 +1,12 @@
+= version 1.1.0
+
+  * [FEATURE] Added on_unhandled_consumer_exception option to allow for more
+  flexible exception handling (consumer exceptions)
+
+= version 1.0.0
+
+First stable release
+
 = version 0.0.8
 
   * [FEATURE] Do not start consumers when server type is unknown

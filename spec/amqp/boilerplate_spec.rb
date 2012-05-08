@@ -132,6 +132,12 @@ describe AMQP::Boilerplate do
       AMQP::Boilerplate.configure { |config| config.connection_options = connection_options }
       AMQP::Boilerplate.connection_options.should == connection_options
     end
+
+    it "should let us set a handler for uncaught exceptions" do
+      on_unhandled_consumer_exception = Proc.new {}
+      AMQP::Boilerplate.configure { |config| config.on_unhandled_consumer_exception = on_unhandled_consumer_exception }
+      AMQP::Boilerplate.on_unhandled_consumer_exception.should == on_unhandled_consumer_exception
+    end
   end
 
   describe ".start" do

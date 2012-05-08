@@ -88,16 +88,14 @@ module AMQP
       def handle_message_wrapper(metadata, payload)
         AMQP::Boilerplate.logger.debug("[#{self.class}#handle_message_wrapper] Received message: #{payload}")
         handle_message(metadata, payload)
-      rescue StandardError => e
-        message = <<-MSG
-[#{self.class}] An exception occurred while processing a message
-  Payload: #{payload}
-  Exception: #{e.message}
-  Backtrace: #{e.backtrace.join("\n")}
-        MSG
-
-        AMQP::Boilerplate.logger.error(message)
+      rescue Exception => e
+        if AMQP::Boilerplate.on_unhandled_consumer_exception.is_a?(Proc)
+          AMQP::Boilerplate.on_unhandled_consumer_exception.call(e)
+        else
+          raise e
+        end
       end
+
     end
   end
 end

@@ -61,6 +61,7 @@ module AMQP
     #     config.logger = ::Rails.logger
     #     config.consumer_paths += %W( #{Rails.root}/app/consumers )
     #     config.connection_options = { :host => "localhost", :port => 5672, :vhost => Rails.env }
+    #     config.on_unhandled_exception = Proc.new { |exception| puts "Do something with exceptions: #{exception}" }
     #   end
     def self.configure
       yield self if block_given?
@@ -75,6 +76,16 @@ module AMQP
     # when starting an EventMachine event loop.
     def self.connection_options=(options)
       @connection_options = options
+    end
+
+    def self.on_unhandled_consumer_exception
+      @on_unhandled_consumer_exception
+    end
+
+    # Pass a +Proc+ object to this option that will function as a handler for
+    # uncaught exceptions in a consumer.
+    def self.on_unhandled_consumer_exception=(handler)
+      @on_unhandled_consumer_exception = handler
     end
 
     def self.start
