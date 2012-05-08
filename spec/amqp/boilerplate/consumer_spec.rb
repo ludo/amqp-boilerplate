@@ -132,6 +132,8 @@ describe AMQP::Boilerplate::Consumer do
   end
 
   describe "#handle_message_wrapper" do
+    subject { @consumer.handle_message_wrapper(@metadata, @payload) }
+
     before(:each) do
       @consumer = BarConsumer.new
 
@@ -141,25 +143,32 @@ describe AMQP::Boilerplate::Consumer do
 
     it "should let handle_message do the heavy lifting" do
       @consumer.should_receive(:handle_message).with(@metadata, @payload)
-      @consumer.handle_message_wrapper(@metadata, @payload)
+      subject
     end
 
     context "when on_unhandled_consumer_exception option set" do
-      before do
-        AMQP::Boilerplate.stub(:on_unhandled_consumer_exception).and_return(Proc.new { |e|
+      let(:handler) do
+        Proc.new { |e,c,m,p|
           AMQP::Boilerplate.logger.error("foo: #{e.message}")
-        })
+        }
+      end
+
+      before do
+        AMQP::Boilerplate.stub(:on_unhandled_consumer_exception).and_return(handler)
       end
 
       it "should not raise the exception" do
-        expect {
-          @consumer.handle_message_wrapper(@metadata, @payload)
-        }.to_not raise_error
+        expect { subject }.to_not raise_error
       end
 
-      it "should yield the on_unhandled_consumer_exception" do
+      it "should execute the on_unhandled_consumer_exception proc" do
         AMQP::Boilerplate.logger.should_receive(:error)
-        @consumer.handle_message_wrapper(@metadata, @payload)
+        subject
+      end
+
+      it "should call the on_unhandled_consumer_exception proc with parameters" do
+        handler.should_receive(:call).with(NoMethodError, subject, @metadata, @payload)
+        subject
       end
     end
 
@@ -169,9 +178,7 @@ describe AMQP::Boilerplate::Consumer do
       end
 
       it "should re-raise the exception" do
-        expect {
-          @consumer.handle_message_wrapper(@metadata, @payload)
-        }.to raise_error
+        expect { subject }.to raise_error
       end
     end
   end

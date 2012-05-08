@@ -1,3 +1,8 @@
+= version 1.1.1
+
+  * [ENHANCEMENT] Pass additional parameters to on_unhandled_consumer_exception
+  handler
+
 = version 1.1.0
 
   * [FEATURE] Added on_unhandled_consumer_exception option to allow for more

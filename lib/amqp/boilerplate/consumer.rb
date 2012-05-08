@@ -90,7 +90,7 @@ module AMQP
         handle_message(metadata, payload)
       rescue Exception => e
         if AMQP::Boilerplate.on_unhandled_consumer_exception.is_a?(Proc)
-          AMQP::Boilerplate.on_unhandled_consumer_exception.call(e)
+          AMQP::Boilerplate.on_unhandled_consumer_exception.call(e, self, metadata, payload)
         else
           raise e
         end

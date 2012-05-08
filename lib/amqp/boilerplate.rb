@@ -61,7 +61,7 @@ module AMQP
     #     config.logger = ::Rails.logger
     #     config.consumer_paths += %W( #{Rails.root}/app/consumers )
     #     config.connection_options = { :host => "localhost", :port => 5672, :vhost => Rails.env }
-    #     config.on_unhandled_exception = Proc.new { |exception| puts "Do something with exceptions: #{exception}" }
+    #     config.on_unhandled_exception = Proc.new { |exception, consumer, metadata, payload| puts "Do something with exceptions: #{exception}" }
     #   end
     def self.configure
       yield self if block_given?
