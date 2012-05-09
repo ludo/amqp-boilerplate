@@ -14,6 +14,7 @@ end
 class BarConsumer < AMQP::Boilerplate::Consumer
   amqp_queue "queue.name.here", :durable => true
   amqp_subscription :ack => true
+  amqp_channel :prefetch => 1
 end
 
 # "Test" producers

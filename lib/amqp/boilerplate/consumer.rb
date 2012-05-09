@@ -6,6 +6,7 @@ module AMQP
     # You should call the macro {.amqp_queue} method and implement {#handle_message}.
     #
     # To specify subscription options you can call the optional macro {.amqp_subscription} method.
+    # To specify channel options you can call the optional macro {.amqp_channel} method.
     #
     # @example Basic consumer
     #   class MyConsumer < AMQP::Boilerplate::Consumer
@@ -16,10 +17,11 @@ module AMQP
     #     end
     #   end
     #
-    # @example Configuring subscription
+    # @example Configuring subscription and channel
     #   class MyConsumer < AMQP::Boilerplate::Consumer
     #     amqp_queue "queue.name.here", :durable => true
     #     amqp_subscription :ack => true
+    #     amqp_channel :prefetch => 1
     #
     #     def handle_message(payload, metadata)
     #       puts "Received message: #{payload}"
@@ -55,11 +57,20 @@ module AMQP
           @subscription_options = options
         end
 
+        # Macro that allows you to specify AMQP channel options
+        #
+        # @params [Hash] options Options that will be passed as options to {http://rubydoc.info/github/ruby-amqp/amqp/master/AMQP/Channel AMQP::Channel}
+        def amqp_channel(options={})
+          @channel_options = options
+        end
+
         def start
           consumer = new
 
           channel = AMQP.channel
           channel.on_error(&consumer.method(:handle_channel_error))
+          @channel_options ||= {}
+          channel.prefetch(@channel_options[:prefetch]) if @channel_options[:prefetch]
 
           queue = channel.queue(@queue_name, @queue_options)
           # Binding a queue to a exchange by passing a string (instead of a AMQP::Exchange instance)
