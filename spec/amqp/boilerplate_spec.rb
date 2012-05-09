@@ -133,6 +133,12 @@ describe AMQP::Boilerplate do
       AMQP::Boilerplate.connection_options.should == connection_options
     end
 
+    it "should allow us to set a prefetch value" do
+      prefetch = 10
+      AMQP::Boilerplate.configure { |config| config.consumer_prefetch = prefetch }
+      AMQP::Boilerplate.consumer_prefetch.should == prefetch
+    end
+
     it "should let us set a handler for uncaught exceptions" do
       on_unhandled_consumer_exception = Proc.new {}
       AMQP::Boilerplate.configure { |config| config.on_unhandled_consumer_exception = on_unhandled_consumer_exception }

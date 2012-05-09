@@ -24,6 +24,7 @@ Add a initializer +amqp.rb+ to your config/initializer folder with the following
     config.on_unhandled_exception = Proc.new { |exception, consumer, metadata, payload|
       puts "Do something with exceptions: #{exception}"
     }
+    config.consumer_prefetch = 10
   end
 
   # Require all files that are no longer auto-loaded when Rails is in thread-safe mode

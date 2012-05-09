@@ -4,6 +4,7 @@ require 'amqp/utilities/event_loop_helper'
 require 'amqp/boilerplate/version'
 
 require 'amqp/boilerplate/consumer'
+require 'amqp/boilerplate/consumer_prefetch'
 require 'amqp/boilerplate/consumer_registry'
 require 'amqp/boilerplate/force_consumers'
 require 'amqp/boilerplate/logging'
@@ -14,6 +15,7 @@ module AMQP
     extend ConsumerRegistry
     extend Logging
     extend ForceConsumers
+    extend ConsumerPrefetch
 
     # Opens a channel to AMQP and starts all consumers
     #
@@ -42,7 +44,7 @@ module AMQP
       AMQP::Boilerplate.logger.info("[#{self.name}.boot] Started AMQP (Server Type: #{AMQP::Utilities::EventLoopHelper.server_type || 'unknown'})")
 
       EventMachine.next_tick do
-        AMQP.channel ||= AMQP::Channel.new(AMQP.connection)
+        AMQP.channel ||= AMQP::Channel.new(AMQP.connection, AMQP::Channel.next_channel_id, :prefetch => consumer_prefetch)
 
         load_consumers
 
