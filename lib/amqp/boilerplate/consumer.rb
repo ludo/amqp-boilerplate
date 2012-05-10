@@ -60,6 +60,7 @@ module AMQP
 
           channel = AMQP.channel
           channel.on_error(&consumer.method(:handle_channel_error))
+          channel.prefetch(AMQP::Boilerplate.consumer_prefetch)
 
           queue = channel.queue(@queue_name, @queue_options)
           # Binding a queue to a exchange by passing a string (instead of a AMQP::Exchange instance)

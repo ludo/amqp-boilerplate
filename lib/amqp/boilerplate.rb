@@ -44,7 +44,7 @@ module AMQP
       AMQP::Boilerplate.logger.info("[#{self.name}.boot] Started AMQP (Server Type: #{AMQP::Utilities::EventLoopHelper.server_type || 'unknown'})")
 
       EventMachine.next_tick do
-        AMQP.channel ||= AMQP::Channel.new(AMQP.connection, AMQP::Channel.next_channel_id, :prefetch => consumer_prefetch)
+        AMQP.channel ||= AMQP::Channel.new(AMQP.connection)
 
         load_consumers
 

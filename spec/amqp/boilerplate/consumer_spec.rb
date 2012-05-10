@@ -6,6 +6,7 @@ describe AMQP::Boilerplate::Consumer do
     AMQP::Boilerplate.stub(:logger).and_return(mock.as_null_object)
     @channel = mock(AMQP::Channel)
     @channel.stub(:on_error).and_return(true)
+    @channel.stub(:prefetch).and_return(@channel)
   end
 
   describe "#handle_channel_error" do
@@ -64,6 +65,11 @@ describe AMQP::Boilerplate::Consumer do
     it "should use a channel" do
       AMQP.should_receive(:channel).and_return(@channel)
       BarConsumer.start
+    end
+
+    it "should pass on the prefetch channel parameter" do
+       @channel.should_receive(:prefetch).with(0).and_return(@channel)
+       BarConsumer.start
     end
 
     it "should instantiate a consumer" do
