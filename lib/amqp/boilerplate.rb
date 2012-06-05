@@ -63,7 +63,7 @@ module AMQP
     #
     # @return [void]
     def self.shutdown
-      AMQP.channel.close do |close_ok|
+      AMQP.stop do
         AMQP::Boilerplate.logger.debug("[#{self.name}.shutdown] Attempting graceful channel and EventMachine shutdown")
         EventMachine.stop
       end

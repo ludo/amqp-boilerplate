@@ -49,7 +49,6 @@ describe AMQP::Boilerplate do
         AMQP::Boilerplate.boot
       end
 
-
       it "should log server type as 'unknown'" do
         AMQP::Boilerplate.logger.should_receive(:info).with(/Server Type: unknown/)
         AMQP::Boilerplate.boot
@@ -107,6 +106,30 @@ describe AMQP::Boilerplate do
         Thread.should_receive(:new)
         AMQP::Boilerplate.boot
       end
+    end
+  end
+
+  describe ".shutdown" do
+    subject { described_class.shutdown }
+
+    before do
+      EventMachine::Timer.stub(:new).and_yield
+      EventMachine.stub(:stop)
+    end
+
+    it "closes AMQP connection" do
+      AMQP.should_receive(:stop)
+      subject
+    end
+
+    it "stops EventMachine" do
+      EventMachine.should_receive(:stop)
+      subject
+    end
+
+    it "sets a one-off timer to make sure event loop shuts down" do
+      EventMachine::Timer.should_receive(:new)
+      subject
     end
   end
 

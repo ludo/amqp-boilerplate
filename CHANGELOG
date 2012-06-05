@@ -1,3 +1,7 @@
+= version 1.2.0
+
+  * [FEATURE] Added shutdown method that stops AMQP and EventMachine loop
+
 = version 1.1.4
 
   * [BUG] Prefetch option was not actually honored. Now it is :)
@@ -5,7 +9,7 @@
 = version 1.1.3
 
   * [ENHANCEMENT] Turned consumer prefetch into a global option (rverts change
-	in 1.1.2)
+  in 1.1.2)
 
 = version 1.1.2
 
