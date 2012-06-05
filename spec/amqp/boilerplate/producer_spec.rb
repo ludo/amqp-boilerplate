@@ -82,8 +82,15 @@ describe AMQP::Boilerplate::Producer do
     end
 
     it "should log after delivering message" do
-      AMQP::Boilerplate.logger.should_receive(:debug).with("[#{@producer.class}] Published message:\n#{@producer.message}")
+      AMQP::Boilerplate.logger.should_receive(:debug).with("[#{@producer.class}] Message was published")
       @producer.publish
+    end
+
+    it "should yield to custom block when given" do
+      AMQP::Boilerplate.logger.should_receive(:debug).with("Custom block")
+      @producer.publish do
+        AMQP::Boilerplate.logger.debug("Custom block")
+      end
     end
   end
 end

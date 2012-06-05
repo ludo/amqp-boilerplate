@@ -93,6 +93,10 @@ module AMQP
         # @see AMQP::Exchange#publish
         # @return [void]
         def publish(&block)
+          block ||= lambda {
+            AMQP::Boilerplate.logger.debug "[#{self.class}] Message was published"
+          }
+
           message = send(self.class.amqp_boilerplate_message.to_sym)
           if message
             AMQP::Boilerplate.logger.debug "[#{self.class}] Publishing message:\n#{message}"
