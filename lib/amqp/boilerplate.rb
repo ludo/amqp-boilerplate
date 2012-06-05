@@ -49,10 +49,29 @@ module AMQP
         load_consumers
 
         if AMQP::Utilities::EventLoopHelper.server_type || force_consumers
+          AMQP::Boilerplate.logger.debug("[#{self.name}.boot] Starting consumers")
           start_consumers
         else
           AMQP::Boilerplate.logger.debug("[#{self.name}.boot] Unknown server type, not starting consumers")
         end
+      end
+    end
+
+    # Try to gracefully close channel and stop EventMachine
+    #
+    # TODO Close all open channels and not just the default one
+    #
+    # @return [void]
+    def self.shutdown
+      AMQP.channel.close do |close_ok|
+        AMQP::Boilerplate.logger.debug("[#{self.name}.shutdown] Attempting graceful channel and EventMachine shutdown")
+        EventMachine.stop
+      end
+
+      # 5 seconds is an arbitrary delay
+      EventMachine::Timer.new(5) do
+        AMQP::Boilerplate.logger.debug("[#{self.name}.shutdown] Graceful shutdown of EM didn't work, forcing shutdown")
+        EventMachine.stop
       end
     end
 
